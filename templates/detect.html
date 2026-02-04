@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0a192f">
+    <meta name="description"
+        content="DeepFake Detection - Advanced AI-powered video analysis for detecting manipulated videos with high accuracy">
+    <meta name="keywords"
+        content="deepfake detection, AI video analysis, video manipulation detection, artificial intelligence">
+    <meta property="og:title" content="DeepFake Detection - Video Analysis">
+    <meta property="og:description" content="Advanced AI-powered video analysis for detecting manipulated videos">
+    <meta property="og:type" content="website">
+    <title>DeepFake Detection - Video Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Base styles */
+        :root {
+            --primary-color: #64ffda;
+            --primary-dark: #4cd6b3;
+            --bg-dark: #1a1a1a;
+            --bg-darker: #111d40;
+            --text-light: #8892b0;
+            --border-color: rgba(100, 255, 218, 0.1);
+        }
+
+        /* Navigation */
+        .navbar {
+            background: var(--bg-dark);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            color: var(--primary-dark);
+        }
+
+        .navbar-nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #fff;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(100, 255, 218, 0.1);
+            color: var(--primary-color);
+        }
+
+        .nav-link.active {
+            background: rgba(100, 255, 218, 0.1);
+            color: var(--primary-color);
+        }
+
+        .nav-link.highlight {
+            background: var(--primary-color);
+            color: var(--bg-dark);
+        }
+
+        .nav-link.highlight:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Content */
+        .content {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            margin: 2rem 0;
+        }
+
+        .upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 2rem;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-label {
+            display: block;
+            padding: 1rem 2rem;
+            background: rgba(100, 255, 218, 0.1);
+            border: 2px dashed var(--primary-color);
+            border-radius: 8px;
+            text-align: center;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-label:hover {
+            background: rgba(100, 255, 218, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Loading States */
+        .loading-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(100, 255, 218, 0.1);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        /* Results Section */
+        .result-container {
+            background: var(--bg-darker);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .result-heading {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .result-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .result-text-container {
+            text-align: center;
+        }
+
+        .result-text {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 1rem 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: 2px;
+        }
+
+        .result-text.fake {
+            color: #ff4d4d;
+            background: linear-gradient(135deg, #ff4d4d, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .result-text.real {
+            color: #4dff4d;
+            background: linear-gradient(135deg, #4dff4d, #6bff6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .confidence-text {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        /* Analysis Details */
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .detail-item {
+            background: rgba(17, 34, 64, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .detail-label {
+            display: block;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        /* Frames Grid */
+        .frames-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .frame-item {
+            position: relative;
+            background: rgba(17, 34, 64, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .frame-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .frame-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .frame-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 0.5rem;
+            background: rgba(17, 34, 64, 0.8);
+            text-align: center;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .frame-item:hover .frame-info {
+            transform: translateY(0);
+        }
+
+        .frame-number {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: auto;
+            padding: 3rem 0;
+            background: var(--bg-darker);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+
+        .footer-section {
+            flex: 1;
+        }
+
+        .footer-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .footer-link {
+            color: var(--text-light);
+            text-decoration: none;
+            display: block;
+            margin: 0.5rem 0;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--primary-color);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 0.5rem;
+            }
+
+            .navbar-nav {
+                flex-direction: column;
+                width: 100%;
+                gap: 0.5rem;
+                margin-top: 1rem;
+            }
+
+            .nav-link {
+                width: 100%;
+                text-align: center;
+            }
+
+            .content {
+                padding: 1rem;
+            }
+
+            .result-content {
+                grid-template-columns: 1fr;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        /* Utility Classes */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+
+        .error-message {
+            color: #ff4d4d;
+            background: rgba(255, 77, 77, 0.1);
+            border: 1px solid #ff4d4d;
+            padding: 0.75rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: var(--primary-color);
+            color: var(--bg-dark);
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .cta-button:disabled {
+            background: #4a5568;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Feature Cards */
+        .feature-card {
+            background: var(--bg-darker);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .confidence-section,
+        .comparison-section {
+            background: var(--bg-darker);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .success-message {
+            margin: 2rem 0;
+        }
+
+        /* Table Styles */
+        .comparison-table table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+        }
+
+        .comparison-table th {
+            color: #64ffda;
+            font-weight: bold;
+        }
+
+        .comparison-table td {
+            color: #8892b0;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Pie Chart Styles */
+        .pie-chart-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            padding: 2.5rem;
+            background: linear-gradient(135deg, rgba(100, 255, 218, 0.08) 0%, rgba(26, 26, 26, 0.9) 100%);
+            border: 1px solid rgba(100, 255, 218, 0.15);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .pie-chart-section h3 {
+            color: #64ffda;
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .pie-chart-container {
+            position: relative;
+            width: 350px;
+            height: 350px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(26, 26, 26, 0.3);
+            border-radius: 50%;
+            padding: 20px;
+        }
+
+        #resultPieChart {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            background: transparent;
+        }
+
+        .pie-chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 2.5rem;
+            margin-top: 2.5rem;
+            padding: 1.5rem;
+            background: rgba(26, 26, 26, 0.8);
+            border-radius: 12px;
+            border: 1px solid rgba(100, 255, 218, 0.15);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .legend-item:hover {
+            background: rgba(100, 255, 218, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .legend-color {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .real-color {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        .fake-color {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .legend-text {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Heatmap Section Styles */
+        .heatmap-section {
+            background: var(--bg-darker);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .heatmap-container {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .heatmap-image-wrapper {
+            position: relative;
+            max-width: 100%;
+            /* Allow wider images for temporal heatmap */
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 8px 32px rgba(0, 255, 218, 0.2);
+        }
+
+        .heatmap-image {
+            width: 100%;
+            display: block;
+        }
+
+        .heatmap-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            text-align: left;
+            background: rgba(17, 34, 64, 0.5);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .heatmap-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .heatmap-color-scale {
+            width: 150px;
+            height: 12px;
+            /* Match coolwarm: Blue (low) -> White/Neutral -> Red (high) */
+            background: linear-gradient(to right, #3b4cc0, #b40426);
+            border-radius: 6px;
+        }
+
+        .heatmap-info-text {
+            color: var(--text-light);
+            max-width: 500px;
+            margin: 1rem auto 0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+    {% if data %}
+    <script>
+        console.log('Template data received:', '{{ data | safe }}');
+        window.data = '{{ data | safe }}';
+        console.log('Window data set:', window.data);
+    </script>
+    {% else %}
+    <script>
+        console.log('No data received in template');
+        window.data = null;
+    </script>
+    {% endif %}
+
+    <div id="root">
+        <nav class="navbar">
+            <a href="{{ url_for('homepage') }}" class="navbar-brand">DeepFake Detection</a>
+            <div class="navbar-nav">
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('detect') }}" class="nav-link active">Upload Video</a>
+                <a href="{{ url_for('image_detect') }}" class="nav-link">Detect Image</a>
+                {% if current_user.is_admin %}
+                <a href="{{ url_for('admin') }}" class="nav-link">Admin</a>
+                {% endif %}
+                <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
+                {% else %}
+                <!-- <a href="{{ url_for('login') }}" class="nav-link">Login</a> -->
+                <a href="{{ url_for('signup') }}" class="nav-link highlight">Sign Up</a>
+                {% endif %}
+            </div>
+        </nav>
+
+        <main class="content" role="main">
+            <h1 class="heading">Detect DeepFake Videos</h1>
+            <p class="para">Upload your video for AI-powered analysis to detect potential manipulation.</p>
+
+            <!-- Upload Section -->
+            <section class="upload-section" aria-labelledby="upload-heading">
+                <h2 id="upload-heading" class="visually-hidden">Video Upload</h2>
+                <form action="{{ url_for('detect') }}" method="post" enctype="multipart/form-data" class="feature-card"
+                    id="upload-form">
+                    <div class="upload-container">
+                        <div class="file-input-wrapper">
+                            <input type="file" name="video" accept="video/*" required id="video-input"
+                                aria-label="Choose a video file to analyze">
+                            <label for="video-input" class="file-label">Choose Video</label>
+                        </div>
+                        <div id="video-preview-container" style="display: none;" aria-live="polite">
+                            <video id="video-preview" controls style="max-width: 100%; border-radius: 8px;">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                        <div class="loading-container" style="display: none;">
+                            <div class="loading-spinner"></div>
+                            <p class="loading-text">Analyzing video...</p>
+                        </div>
+                        <div id="error-message" class="error-message" role="alert" style="display: none;"></div>
+                        <button type="submit" class="cta-button" id="analyze-btn">Analyze Video</button>
+                    </div>
+                    <p class="upload-info">Supported formats: MP4, AVI, MOV (Max size: 100MB)</p>
+                </form>
+            </section>
+
+            <!-- Results Section -->
+            <div id="results" style="display: none;" role="region" aria-label="Analysis Results">
+                <!-- Prediction Result -->
+                <div class="result-container">
+                    <h2 class="result-heading">Analysis Result</h2>
+                    <div class="result-content">
+                        <div class="result-text-container">
+                            <p id="result-text" class="result-text" role="status" aria-live="polite"></p>
+                            <p id="confidence-text" class="confidence-text" aria-live="polite"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pie Chart Visualization -->
+                <div class="pie-chart-section feature-card">
+                    <h3>Result Distribution</h3>
+                    <div class="pie-chart-container">
+                        <canvas id="resultPieChart" width="350" height="350"></canvas>
+                        <div class="pie-chart-legend">
+                            <div class="legend-item">
+                                <span class="legend-color real-color"></span>
+                                <span class="legend-text">Real</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color fake-color"></span>
+                                <span class="legend-text">Fake</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Heatmap Visualization Section -->
+                <div id="heatmap-section" class="heatmap-section feature-card" style="display: none;">
+                    <h3 class="result-heading" style="font-size: 1.5rem;">AI Focus Analysis (Heatmap)</h3>
+                    <div class="heatmap-container">
+                        <div class="heatmap-image-wrapper">
+                            <img id="heatmap-image" src="" alt="AI Focus Heatmap" class="heatmap-image">
+                        </div>
+                        <div class="heatmap-legend">
+                            <div class="heatmap-legend-item">
+                                <span style="color: var(--primary-color); font-weight: 600;">Attention Scale:</span>
+                            </div>
+                            <div class="heatmap-legend-item">
+                                <span style="color: #4cd6b3; font-size: 0.8rem;">Low</span>
+                                <div class="heatmap-color-scale"></div>
+                                <span style="color: #ff4d4d; font-size: 0.8rem;">High</span>
+                            </div>
+                            <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 0.5rem;">
+                                Red areas indicate regions where the AI model detected signs of manipulation.
+                            </p>
+                        </div>
+                    </div>
+                    <p class="heatmap-info-text">
+                        The heatmap above visualizes the confidence score of the AI model across the video frames.
+                        Red areas indicate frames with high probability of manipulation, while blue areas indicate real
+                        content.
+                    </p>
+                </div>
+
+                <!-- Analysis Details -->
+                <div class="analysis-details feature-card" id="details-section">
+                    <h3>Analysis Details</h3>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">FRAMES ANALYZED</span>
+                            <span id="frames-analyzed" class="detail-value" aria-live="polite">0</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">PROCESSING TIME</span>
+                            <span id="processing-time" class="detail-value" aria-live="polite">0s</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">MODEL CONFIDENCE</span>
+                            <span id="model-confidence" class="detail-value" aria-live="polite">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analyzed Frames Section -->
+                <div id="frames-section" class="feature-card" style="display: none;">
+                    <h3 style="color: var(--primary-color); text-align: center; margin-bottom: 0.5rem;">Analyzed Frames
+                    </h3>
+                    <p style="color: var(--text-light); text-align: center; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                        Key frames extracted and analyzed for manipulation patterns
+                    </p>
+                    <div id="frames-grid" class="frames-container">
+                        <!-- Frames will be inserted here by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer" role="contentinfo">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>About Us</h3>
+                    <p>We are dedicated to detecting and preventing deepfake videos using advanced AI technology.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact</h3>
+                    <a href="mailto:contact@deepfakedetect.ai" class="footer-link">contact@deepfakedetect.ai</a>
+                    <a href="https://github.com/deepfake-detect" target="_blank" rel="noopener noreferrer"
+                        class="footer-link">GitHub</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Legal</h3>
+                    <a href="{{ url_for('privacy') }}" class="footer-link">Privacy Policy</a>
+                    <a href="{{ url_for('terms') }}" class="footer-link">Terms of Service</a>
+                    <p>© 2025 DeepFake Detection</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const videoInput = document.getElementById('video-input');
+            const videoPreview = document.getElementById('video-preview');
+            const videoPreviewContainer = document.getElementById('video-preview-container');
+            const uploadForm = document.getElementById('upload-form');
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const loadingContainer = document.querySelector('.loading-container');
+            const errorMessage = document.getElementById('error-message');
+
+            // Video preview functionality
+            videoInput?.addEventListener('change', function () {
+                errorMessage.style.display = 'none';
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    // Check file size (100MB = 100 * 1024 * 1024 bytes)
+                    if (file.size > 100 * 1024 * 1024) {
+                        errorMessage.textContent = 'File size exceeds 100MB limit';
+                        errorMessage.style.display = 'block';
+                        this.value = '';
+                        videoPreviewContainer.style.display = 'none';
+                        return;
+                    }
+
+                    const fileURL = URL.createObjectURL(file);
+                    videoPreview.src = fileURL;
+                    videoPreviewContainer.style.display = 'block';
+
+                    // Update file label
+                    const fileLabel = document.querySelector('.file-label');
+                    fileLabel.textContent = file.name;
+                } else {
+                    videoPreviewContainer.style.display = 'none';
+                    videoPreview.src = '';
+                }
+            });
+
+            // Form submission handling
+            uploadForm?.addEventListener('submit', function (e) {
+                if (!videoInput.files || !videoInput.files[0]) {
+                    e.preventDefault();
+                    errorMessage.textContent = 'Please select a video file';
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+
+                loadingContainer.style.display = 'flex';
+                analyzeBtn.disabled = true;
+                errorMessage.style.display = 'none';
+            });
+
+            // Results handling - only show if valid data exists
+            console.log('Checking for window.data:', typeof window.data, window.data);
+
+            // Check for valid data: not undefined, not null, not empty string, and has required fields
+            const hasValidData = (
+                typeof window.data !== 'undefined' &&
+                window.data !== null &&
+                window.data !== '' &&
+                window.data !== 'null'
+            );
+
+            if (hasValidData) {
+                try {
+                    console.log('Raw data received:', window.data);
+                    const parsedData = typeof window.data === 'string' ? JSON.parse(window.data) : window.data;
+                    console.log('Parsed data:', parsedData);
+
+                    // Check if required fields exist
+                    if (!parsedData.output || !parsedData.confidence || !parsedData.processing_time) {
+                        console.error('Missing required fields in parsed data:', parsedData);
+                        return;
+                    }
+
+                    const resultsDiv = document.getElementById('results');
+                    const resultText = document.getElementById('result-text');
+                    const confidenceText = document.getElementById('confidence-text');
+                    const modelConfidence = document.getElementById('model-confidence');
+                    const processingTime = document.getElementById('processing-time');
+                    const pieChartCanvas = document.getElementById('resultPieChart');
+                    const realColor = document.querySelector('.real-color');
+                    const fakeColor = document.querySelector('.fake-color');
+
+                    console.log('Found DOM elements:', {
+                        resultsDiv: !!resultsDiv,
+                        resultText: !!resultText,
+                        confidenceText: !!confidenceText
+                    });
+
+                    loadingContainer.style.display = 'none';
+                    analyzeBtn.disabled = false;
+                    resultsDiv.style.display = 'block';
+
+                    // Display result and confidence
+                    resultText.textContent = parsedData.output;
+                    resultText.className = `result-text ${parsedData.output.toLowerCase()}`;
+                    confidenceText.textContent = `Confidence: ${parsedData.confidence.toFixed(2)}%`;
+
+                    console.log('Updated result text:', resultText.textContent);
+                    console.log('Updated confidence text:', confidenceText.textContent);
+
+                    // Update analysis details
+                    modelConfidence.textContent = `${parsedData.confidence.toFixed(2)}%`;
+                    processingTime.textContent = `${parsedData.processing_time}s`;
+
+                    // Update frames analyzed count
+                    const framesAnalyzed = document.getElementById('frames-analyzed');
+                    if (framesAnalyzed) {
+                        framesAnalyzed.textContent = parsedData.frames_analyzed || 0;
+                    }
+
+                    // Update Heatmap if available
+                    const heatmapSection = document.getElementById('heatmap-section');
+                    const heatmapImage = document.getElementById('heatmap-image');
+
+                    if (parsedData.heatmap_url) {
+                        heatmapImage.src = '/' + parsedData.heatmap_url + '?t=' + new Date().getTime();
+                        heatmapSection.style.display = 'block';
+                    } else {
+                        heatmapSection.style.display = 'none';
+                    }
+
+                    // Update Analyzed Frames grid
+                    const framesSection = document.getElementById('frames-section');
+                    const framesGrid = document.getElementById('frames-grid');
+
+                    if (parsedData.frame_urls && parsedData.frame_urls.length > 0) {
+                        framesGrid.innerHTML = ''; // Clear existing frames
+
+                        parsedData.frame_urls.forEach((frameUrl, index) => {
+                            const frameItem = document.createElement('div');
+                            frameItem.className = 'frame-item';
+                            frameItem.innerHTML = `
+                                <img src="/${frameUrl}?t=${new Date().getTime()}" alt="Frame ${index + 1}" loading="lazy">
+                                <div class="frame-info">
+                                    <p class="frame-number">Frame ${index + 1}</p>
+                                </div>
+                            `;
+                            framesGrid.appendChild(frameItem);
+                        });
+
+                        framesSection.style.display = 'block';
+                        console.log(`Displayed ${parsedData.frame_urls.length} analyzed frames`);
+                    } else {
+                        framesSection.style.display = 'none';
+                    }
+
+                    // Add a success message
+                    const successMessage = document.createElement('div');
+                    successMessage.className = 'success-message';
+                    successMessage.innerHTML = `
+                        <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, rgba(100, 255, 218, 0.1) 0%, rgba(26, 26, 26, 0.8) 100%); border-radius: 12px; margin: 20px 0; border: 1px solid rgba(100, 255, 218, 0.2);">
+                            <h3 style="color: #64ffda; margin-bottom: 10px; font-size: 1.3rem;">✅ Analysis Complete!</h3>
+                            <p style="color: #8892b0; margin: 0; font-size: 1rem;">Video processed successfully using advanced AI deep learning technology.</p>
+                        </div>
+                    `;
+                    resultsDiv.insertBefore(successMessage, resultsDiv.firstChild);
+
+                    // Update pie chart
+                    const ctx = pieChartCanvas.getContext('2d');
+
+                    // Calculate the data for the pie chart based on confidence
+                    const realPercentage = parsedData.output.toLowerCase() === 'real' ? parsedData.confidence : (100 - parsedData.confidence);
+                    const fakePercentage = parsedData.output.toLowerCase() === 'fake' ? parsedData.confidence : (100 - parsedData.confidence);
+
+                    console.log('Pie chart data:', { realPercentage, fakePercentage, output: parsedData.output });
+
+                    // Destroy existing chart if it exists
+                    if (window.resultChart) {
+                        window.resultChart.destroy();
+                    }
+
+                    // Ensure we have valid data
+                    const chartData = [realPercentage, fakePercentage];
+                    if (chartData.some(val => isNaN(val) || val < 0)) {
+                        console.error('Invalid chart data:', chartData);
+                        // Show fallback display
+                        pieChartCanvas.style.display = 'none';
+                        const fallbackDiv = document.createElement('div');
+                        fallbackDiv.innerHTML = `
+                            <div style="text-align: center; padding: 40px; color: #8892b0;">
+                                <h4 style="color: #64ffda; margin-bottom: 20px;">Result Distribution</h4>
+                                <div style="font-size: 2rem; font-weight: bold; color: ${parsedData.output.toLowerCase() === 'real' ? '#27ae60' : '#e74c3c'};">
+                                    ${parsedData.output}
+                            </div>
+                                <div style="font-size: 1.2rem; margin-top: 10px;">
+                                    Confidence: ${parsedData.confidence.toFixed(1)}%
+                            </div>
+                        </div>
+                    `;
+                        pieChartCanvas.parentNode.appendChild(fallbackDiv);
+                        return;
+                    }
+
+                    try {
+                        window.resultChart = new Chart(ctx, {
+                            type: 'doughnut',
+                            data: {
+                                labels: ['Real', 'Fake'],
+                                datasets: [{
+                                    data: chartData,
+                                    backgroundColor: [
+                                        '#27ae60', // Real color
+                                        '#e74c3c'  // Fake color
+                                    ],
+                                    borderWidth: 4,
+                                    borderColor: '#1a1a1a',
+                                    hoverBorderWidth: 6,
+                                    hoverBorderColor: '#64ffda'
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                cutout: '65%',
+                                plugins: {
+                                    legend: {
+                                        display: false // Hide default legend
+                                    },
+                                    tooltip: {
+                                        enabled: true,
+                                        backgroundColor: 'rgba(26, 26, 26, 0.95)',
+                                        titleColor: '#64ffda',
+                                        bodyColor: '#8892b0',
+                                        borderColor: '#64ffda',
+                                        borderWidth: 2,
+                                        cornerRadius: 8,
+                                        displayColors: false,
+                                        callbacks: {
+                                            title: function (tooltipItems) {
+                                                return tooltipItems[0].label;
+                                            },
+                                            label: function (context) {
+                                                return context.parsed.toFixed(1) + '%';
+                                            }
+                                        }
+                                    }
+                                },
+                                animation: {
+                                    animateRotate: true,
+                                    duration: 1500,
+                                    easing: 'easeInOutQuart'
+                                },
+                                elements: {
+                                    arc: {
+                                        borderWidth: 4
+                                    }
+                                }
+                            }
+                        });
+
+                        console.log('Chart created successfully');
+                    } catch (chartError) {
+                        console.error('Error creating chart:', chartError);
+                        // Show fallback display
+                        pieChartCanvas.style.display = 'none';
+                        const fallbackDiv = document.createElement('div');
+                        fallbackDiv.innerHTML = `
+                            <div style="text-align: center; padding: 40px; color: #8892b0;">
+                                <h4 style="color: #64ffda; margin-bottom: 20px;">Result Distribution</h4>
+                                <div style="font-size: 2rem; font-weight: bold; color: ${parsedData.output.toLowerCase() === 'real' ? '#27ae60' : '#e74c3c'};">
+                                    ${parsedData.output}
+                        </div>
+                                <div style="font-size: 1.2rem; margin-top: 10px;">
+                                    Confidence: ${parsedData.confidence.toFixed(1)}%
+                                </div>
+                        </div>
+                    `;
+                        pieChartCanvas.parentNode.appendChild(fallbackDiv);
+                    }
+
+                    // Update legend colors and text
+                    if (realColor && fakeColor) {
+                        realColor.style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
+                        fakeColor.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+                    }
+
+                    // Update legend text to show percentages
+                    const legendTexts = document.querySelectorAll('.legend-text');
+                    if (legendTexts.length >= 2) {
+                        legendTexts[0].textContent = `Real (${realPercentage.toFixed(1)}%)`;
+                        legendTexts[1].textContent = `Fake (${fakePercentage.toFixed(1)}%)`;
+                    }
+
+                } catch (error) {
+                    console.error('Error parsing data:', error);
+                    errorMessage.textContent = 'An error occurred while processing the results';
+                    errorMessage.style.display = 'block';
+                }
+            } else {
+                console.log('No data received from server');
+            }
+        });
+    </script>
+</body>
+
+</html>

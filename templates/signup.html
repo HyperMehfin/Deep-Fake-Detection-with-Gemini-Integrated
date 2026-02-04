@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - DeepFake Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0a192f 0%, #112240 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+            background: rgba(17, 25, 40, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            backdrop-filter: blur(8px);
+            margin: 20px;
+        }
+
+        h2 {
+            color: #fff;
+            text-align: center;
+            margin: 0 0 30px 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #8892b0;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #64ffda;
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8892b0;
+            font-size: 16px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8892b0;
+            cursor: pointer;
+            font-size: 16px;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 14px;
+            background: #64ffda;
+            color: #0a192f;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .auth-btn:hover {
+            background: #4cd6b3;
+            transform: translateY(-1px);
+        }
+
+        .auth-btn:active {
+            transform: translateY(0);
+        }
+
+        .auth-links {
+            text-align: center;
+            margin-top: 24px;
+            color: #8892b0;
+            font-size: 14px;
+        }
+
+        .auth-links a {
+            color: #64ffda;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .auth-links a:hover {
+            color: #4cd6b3;
+        }
+
+        .error-message {
+            background: rgba(255, 69, 58, 0.1);
+            border: 1px solid rgba(255, 69, 58, 0.2);
+            color: #ff453a;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .password-strength {
+            margin-top: 8px;
+        }
+
+        .strength-meter {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .strength-meter div {
+            height: 100%;
+            width: 0;
+            transition: all 0.3s ease;
+        }
+
+        .strength-weak { background: #ff453a; }
+        .strength-medium { background: #ff9f0a; }
+        .strength-strong { background: #64ffda; }
+
+        .strength-text {
+            color: #8892b0;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .input-invalid {
+            animation: shake 0.5s ease-in-out;
+            border-color: #ff453a !important;
+        }
+
+        .validation-message {
+            color: #ff453a;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .input-invalid + .validation-message {
+            display: block;
+        }
+
+        @media (max-width: 480px) {
+            .auth-container {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <h2>Create Account</h2>
+        {% if error %}
+        <div class="error-message">
+            <i class="fas fa-exclamation-circle"></i>
+            {{ error }}
+        </div>
+        {% endif %}
+        <form method="POST" action="{{ url_for('signup') }}" id="signupForm" novalidate>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="username" name="username" required 
+                           placeholder="Choose a username"
+                           aria-label="Username">
+                    <div class="validation-message">Username must be 3-20 characters</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" name="email" required 
+                           placeholder="Enter your email"
+                           aria-label="Email address">
+                    <div class="validation-message">Please enter a valid email address</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" name="password" required 
+                           placeholder="Create a password"
+                           aria-label="Password">
+                    <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <div class="validation-message">Password must be at least 8 characters</div>
+                </div>
+                <div class="password-strength">
+                    <div class="strength-meter">
+                        <div id="strengthBar"></div>
+                    </div>
+                    <div class="strength-text" id="strengthText">Password strength</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="confirm_password" name="confirm_password" required 
+                           placeholder="Confirm your password"
+                           aria-label="Confirm password">
+                    <button type="button" class="password-toggle" onclick="togglePassword('confirm_password')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <div class="validation-message">Passwords do not match</div>
+                </div>
+            </div>
+            <button type="submit" class="auth-btn" id="submitBtn">Sign Up</button>
+        </form>
+        <div class="auth-links">
+            Already have an account? <a href="{{ url_for('login') }}">Login</a>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword(inputId) {
+            const passwordInput = document.getElementById(inputId);
+            const toggleIcon = passwordInput.nextElementSibling.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            const strengthBar = document.getElementById('strengthBar');
+            const strengthText = document.getElementById('strengthText');
+
+            if (password.length >= 8) strength += 1;
+            if (password.length >= 12) strength += 1;
+            if (/[A-Z]/.test(password)) strength += 1;
+            if (/[0-9]/.test(password)) strength += 1;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+
+            strengthBar.className = '';
+            if (strength <= 2) {
+                strengthBar.classList.add('strength-weak');
+                strengthText.textContent = 'Weak password';
+                strengthBar.style.width = '33%';
+            } else if (strength <= 4) {
+                strengthBar.classList.add('strength-medium');
+                strengthText.textContent = 'Medium password';
+                strengthBar.style.width = '66%';
+            } else {
+                strengthBar.classList.add('strength-strong');
+                strengthText.textContent = 'Strong password';
+                strengthBar.style.width = '100%';
+            }
+        }
+
+        document.getElementById('password').addEventListener('input', function() {
+            checkPasswordStrength(this.value);
+        });
+
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            let isValid = true;
+            const username = document.getElementById('username');
+            const email = document.getElementById('email');
+            const password = document.getElementById('password');
+            const confirmPassword = document.getElementById('confirm_password');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (!username.value.match(/^[a-zA-Z0-9_]{3,20}$/)) {
+                username.classList.add('input-invalid');
+                isValid = false;
+            } else {
+                username.classList.remove('input-invalid');
+            }
+
+            if (!email.value.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i)) {
+                email.classList.add('input-invalid');
+                isValid = false;
+            } else {
+                email.classList.remove('input-invalid');
+            }
+
+            if (password.value.length < 8) {
+                password.classList.add('input-invalid');
+                isValid = false;
+            } else {
+                password.classList.remove('input-invalid');
+            }
+
+            if (password.value !== confirmPassword.value) {
+                confirmPassword.classList.add('input-invalid');
+                isValid = false;
+            } else {
+                confirmPassword.classList.remove('input-invalid');
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+            } else {
+                submitBtn.textContent = 'Creating account...';
+                submitBtn.disabled = true;
+            }
+        });
+
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                if (this.value) {
+                    this.classList.remove('input-invalid');
+                }
+                
+                if (this.id === 'password' || this.id === 'confirm_password') {
+                    const password = document.getElementById('password');
+                    const confirmPassword = document.getElementById('confirm_password');
+                    if (confirmPassword.value) {
+                        if (password.value === confirmPassword.value) {
+                            confirmPassword.classList.remove('input-invalid');
+                        } else {
+                            confirmPassword.classList.add('input-invalid');
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

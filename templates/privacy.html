@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Privacy Policy - DeepFake Detection">
+    <title>Privacy Policy - DeepFake Detection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <style>
+        .privacy-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .privacy-section {
+            margin-bottom: 2rem;
+            background: rgba(17, 34, 64, 0.3);
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            border-radius: 8px;
+            padding: 2rem;
+        }
+
+        .privacy-section h2 {
+            color: #64ffda;
+            margin-bottom: 1rem;
+        }
+
+        .privacy-section p {
+            color: #8892b0;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .privacy-section ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .privacy-section li {
+            color: #8892b0;
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .privacy-section li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #64ffda;
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <nav class="navbar">
+            <a href="{{ url_for('homepage') }}" class="navbar-brand">DeepFake Detection</a>
+            <div class="navbar-nav">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('detect') }}" class="nav-link">Detect</a>
+                    {% if current_user.is_admin %}
+                        <a href="{{ url_for('admin') }}" class="nav-link">Admin</a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="nav-link">Login</a>
+                    <a href="{{ url_for('signup') }}" class="nav-link highlight">Sign Up</a>
+                {% endif %}
+            </div>
+        </nav>
+
+        <main class="content">
+            <h1 class="heading">Privacy Policy</h1>
+            
+            <div class="privacy-content">
+                <div class="privacy-section">
+                    <h2>Introduction</h2>
+                    <p>At DeepFake Detection, we take your privacy seriously. This policy explains how we collect, use, and protect your personal information.</p>
+                </div>
+
+                <div class="privacy-section">
+                    <h2>Information We Collect</h2>
+                    <ul>
+                        <li>Account information (email, username)</li>
+                        <li>Uploaded videos for analysis</li>
+                        <li>Analysis results and metadata</li>
+                        <li>Usage statistics and preferences</li>
+                    </ul>
+                </div>
+
+                <div class="privacy-section">
+                    <h2>How We Use Your Information</h2>
+                    <ul>
+                        <li>To provide deepfake detection services</li>
+                        <li>To improve our detection algorithms</li>
+                        <li>To maintain and secure your account</li>
+                        <li>To communicate important updates</li>
+                    </ul>
+                </div>
+
+                <div class="privacy-section">
+                    <h2>Data Security</h2>
+                    <p>We implement robust security measures to protect your data:</p>
+                    <ul>
+                        <li>Secure data encryption</li>
+                        <li>Regular security audits</li>
+                        <li>Limited access to personal information</li>
+                        <li>Automatic data deletion after analysis</li>
+                    </ul>
+                </div>
+
+                <div class="privacy-section">
+                    <h2>Your Rights</h2>
+                    <ul>
+                        <li>Access your personal data</li>
+                        <li>Request data deletion</li>
+                        <li>Opt-out of communications</li>
+                        <li>Report privacy concerns</li>
+                    </ul>
+                </div>
+
+                <div class="privacy-section">
+                    <h2>Contact Us</h2>
+                    <p>If you have any questions about our privacy policy, please contact us at:</p>
+                    <p>Email: privacy@deepfakedetect.ai</p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>About Us</h3>
+                    <p>We are dedicated to detecting and preventing deepfake videos using advanced AI technology.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact</h3>
+                    <a href="mailto:contact@deepfakedetect.ai" class="footer-link">contact@deepfakedetect.ai</a>
+                    <a href="https://github.com/deepfake-detect" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Legal</h3>
+                    <a href="#" class="footer-link">Privacy Policy</a>
+                    <a href="{{ url_for('terms') }}" class="footer-link">Terms of Service</a>
+                    <p>© 2024 DeepFake Detection</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

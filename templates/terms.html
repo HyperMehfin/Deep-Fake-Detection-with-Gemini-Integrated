@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Terms of Service - DeepFake Detection">
+    <title>Terms of Service - DeepFake Detection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <style>
+        .terms-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .terms-section {
+            margin-bottom: 2rem;
+            background: rgba(17, 34, 64, 0.3);
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            border-radius: 8px;
+            padding: 2rem;
+        }
+
+        .terms-section h2 {
+            color: #64ffda;
+            margin-bottom: 1rem;
+        }
+
+        .terms-section p {
+            color: #8892b0;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .terms-section ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .terms-section li {
+            color: #8892b0;
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .terms-section li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #64ffda;
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <nav class="navbar">
+            <a href="{{ url_for('homepage') }}" class="navbar-brand">DeepFake Detection</a>
+            <div class="navbar-nav">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('detect') }}" class="nav-link">Detect</a>
+                    {% if current_user.is_admin %}
+                        <a href="{{ url_for('admin') }}" class="nav-link">Admin</a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="nav-link">Login</a>
+                    <a href="{{ url_for('signup') }}" class="nav-link highlight">Sign Up</a>
+                {% endif %}
+            </div>
+        </nav>
+
+        <main class="content">
+            <h1 class="heading">Terms of Service</h1>
+            
+            <div class="terms-content">
+                <div class="terms-section">
+                    <h2>1. Acceptance of Terms</h2>
+                    <p>By accessing and using DeepFake Detection, you agree to be bound by these Terms of Service and all applicable laws and regulations.</p>
+                </div>
+
+                <div class="terms-section">
+                    <h2>2. Service Description</h2>
+                    <p>DeepFake Detection provides AI-powered video analysis to detect potential manipulated content. Our service:</p>
+                    <ul>
+                        <li>Analyzes uploaded video content</li>
+                        <li>Provides confidence scores and detailed analysis</li>
+                        <li>Stores temporary data for processing</li>
+                        <li>Maintains user accounts and preferences</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h2>3. User Obligations</h2>
+                    <ul>
+                        <li>Provide accurate account information</li>
+                        <li>Maintain account security</li>
+                        <li>Use the service legally and ethically</li>
+                        <li>Respect intellectual property rights</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h2>4. Content Guidelines</h2>
+                    <p>Users must not upload:</p>
+                    <ul>
+                        <li>Illegal or harmful content</li>
+                        <li>Copyrighted material without permission</li>
+                        <li>Malicious software or code</li>
+                        <li>Content that violates privacy rights</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h2>5. Service Limitations</h2>
+                    <ul>
+                        <li>Maximum file size: 100MB per upload</li>
+                        <li>Supported formats: MP4, AVI, MOV</li>
+                        <li>Processing time may vary</li>
+                        <li>Results accuracy not guaranteed</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h2>6. Privacy & Data</h2>
+                    <p>We handle your data according to our Privacy Policy. Key points:</p>
+                    <ul>
+                        <li>Data is processed securely</li>
+                        <li>Uploaded content is temporarily stored</li>
+                        <li>Analysis results are confidential</li>
+                        <li>User data is protected</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h2>7. Changes to Terms</h2>
+                    <p>We reserve the right to modify these terms at any time. Continued use of the service constitutes acceptance of updated terms.</p>
+                </div>
+
+                <div class="terms-section">
+                    <h2>8. Contact Information</h2>
+                    <p>For questions about these terms, contact us at:</p>
+                    <p>Email: legal@deepfakedetect.ai</p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>About Us</h3>
+                    <p>We are dedicated to detecting and preventing deepfake videos using advanced AI technology.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact</h3>
+                    <a href="mailto:contact@deepfakedetect.ai" class="footer-link">contact@deepfakedetect.ai</a>
+                    <a href="https://github.com/deepfake-detect" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Legal</h3>
+                    <a href="{{ url_for('privacy') }}" class="footer-link">Privacy Policy</a>
+                    <a href="#" class="footer-link">Terms of Service</a>
+                    <p>© 2024 DeepFake Detection</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

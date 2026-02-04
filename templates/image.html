@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>DeepFake Detection</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0d0b1f;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            text-align: center;
+        }
+
+        .navbar {
+            background: #12122c;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand {
+            color: #00f2ff;
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            color: #00c2cc;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            font-size: 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .nav-link:hover {
+            background: rgba(0, 242, 255, 0.2);
+            color: #00f2ff;
+        }
+
+        .nav-link.highlight {
+            background: #00f2ff;
+            color: #0a091b;
+            font-weight: 600;
+            padding: 0.7rem 1.5rem;
+            border-radius: 8px;
+        }
+
+        .nav-link.highlight:hover {
+            background: #00c2cc;
+        }
+
+        .container {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            color: #00f2ff;
+        }
+
+        .form-container {
+            background: #1b1b3a;
+            padding: 30px;
+            border-radius: 12px;
+            width: 400px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .upload-box {
+            border: 2px dashed #00f2ff;
+            padding: 20px;
+            width: 100%;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .upload-box input {
+            display: none;
+        }
+
+        .btn {
+            background-color: #00f2ff;
+            color: black;
+            padding: 14px 28px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #00c2cc;
+        }
+
+        .result {
+            margin-top: 15px;
+            font-size: 1.2rem;
+        }
+
+        .footer {
+            margin-top: 50px;
+            padding: 20px;
+            background-color: #12122c;
+            color: white;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <a href="{{ url_for('homepage') }}" class="navbar-brand">DeepFake Detection</a>
+        <div>
+            <a href="{{ url_for('detect') }}" class="nav-link highlight">Video Detect</a>
+            <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Detect DeepFake Image</h1>
+        <p>Upload your image for AI-powered analysis to detect potential manipulation.</p>
+    </div>
+
+    <div class="container">
+        <h2>Upload an Image</h2>
+        <div class="form-container">
+            <form action="/image-detect" method="post" enctype="multipart/form-data">
+                <input type="file" id="fileUpload" style="margin: 20px;" name="image" accept="image/*" required onchange="previewImage(event)"><br>
+                <img id="preview" class="image-preview" style="width: 100px; margin: auto;">
+                <br>
+                <button class="btn" type="submit">Detect</button>
+            </form>
+
+            {% if output %}
+            <div class="result">
+                <p>Prediction: <strong>{{ output }}</strong></p>
+                <p>Confidence: <strong>{{ confidence }}%</strong></p>
+            </div>
+            {% endif %}
+            {% if error %}
+            <p class="error">{{ error }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2025 DeepFake Detection</p>
+    </div>
+
+    <script>
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('preview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepFake Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+            /* Account for fixed navbar in scroll */
+        }
+
+        .navbar {
+            background: rgba(26, 26, 26, 0.95);
+            padding: 1rem 2rem;
+            height: 70px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+            position: fixed;
+            width: 100%;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-brand {
+            color: #64ffda;
+            font-size: 1.6rem;
+            font-weight: bold;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #fff;
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            position: relative;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: #2a2a2a;
+        }
+
+        .nav-link.highlight {
+            background: #64ffda;
+            color: #1a1a1a;
+        }
+
+        .nav-link.highlight:hover {
+            background: #4cd6b3;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 5rem 2rem;
+            margin-top: -1rem;
+            background: linear-gradient(135deg, #111d40 0%, #0a0d30 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            color: #64ffda;
+            text-shadow: 0 2px 10px rgba(100, 255, 218, 0.3);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #8892b0;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-button {
+            background: #64ffda;
+            color: #1a1a1a;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .cta-button:hover {
+            background: #4cd6b3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(100, 255, 218, 0.3);
+        }
+
+        .cta-button.secondary {
+            background: transparent;
+            color: #64ffda;
+            border: 2px solid #64ffda;
+        }
+
+        .cta-button.secondary:hover {
+            background: #64ffda;
+            color: #1a1a1a;
+        }
+
+        .features {
+            padding: 5rem 2rem;
+            background: #1a1a1a;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .features h2 {
+            text-align: center;
+            color: #64ffda;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .features h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: #64ffda;
+            border-radius: 2px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: rgba(42, 42, 42, 0.8);
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(100, 255, 218, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            color: #64ffda;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: #8892b0;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-link {
+            display: inline-block;
+            background: rgba(100, 255, 218, 0.1);
+            color: #64ffda;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .feature-link:hover {
+            background: rgba(100, 255, 218, 0.2);
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .features {
+            padding: 6rem 2rem;
+            background: linear-gradient(180deg, #1a1a1a 0%, #111111 100%);
+            position: relative;
+        }
+
+        .cta-button:hover {
+            background: #4cd6b3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(100, 255, 218, 0.3);
+        }
+
+        .features h2 {
+            text-align: center;
+            color: #64ffda;
+            margin-bottom: 3rem;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 10px rgba(100, 255, 218, 0.2);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: rgba(42, 42, 42, 0.8);
+            padding: 2.5rem;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards;
+            animation-delay: calc(var(--card-index, 0) * 0.2s);
+        }
+
+        .feature-card h3 {
+            color: #64ffda;
+            margin-bottom: 1.2rem;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .feature-card p {
+            color: #8892b0;
+        }
+
+        body {
+            margin: 0;
+            padding-top: 70px;
+            /* Height of navbar */
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background: #1a1a1a;
+            min-height: 100vh;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(100, 255, 218, 0.1);
+        }
+
+        .about,
+        .contact {
+            padding: 6rem 2rem;
+            position: relative;
+            color: white;
+            text-align: center;
+        }
+
+        .about {
+            background: linear-gradient(45deg, #111d40 0%, #131a61 100%);
+        }
+
+        .contact {
+            background: linear-gradient(135deg, #111d40 0%, #0a0d30 100%);
+        }
+
+        .about h2,
+        .contact h2 {
+            color: #64ffda;
+            margin-bottom: 2.5rem;
+            font-size: 2.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 10px rgba(100, 255, 218, 0.2);
+            position: relative;
+            display: inline-block;
+        }
+
+        .about h2::after,
+        .contact h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: #64ffda;
+            border-radius: 2px;
+        }
+
+        .about p,
+        .contact p {
+            color: #8892b0;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
+        }
+
+        .contact-form {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 1.2rem;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            border-radius: 8px;
+            /* background: rgba(42, 42, 42, 0.8); */
+            color: white;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .contact-form input:focus,
+        .contact-form textarea:focus {
+            outline: none;
+            border-color: #64ffda;
+            box-shadow: 0 0 0 2px rgba(100, 255, 218, 0.2);
+        }
+
+        .contact-form button {
+            background: #64ffda;
+            color: #1a1a1a;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .contact-form button:hover {
+            background: #4cd6b3;
+        }
+
+        .contact-form button {
+            background: #64ffda;
+            color: #1a1a1a;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .contact-form button:hover {
+            background: #4cd6b3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(100, 255, 218, 0.3);
+        }
+
+        footer {
+            background: #1a1a1a;
+            color: #8892b0;
+            padding: 3rem 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(42, 42, 42, 0.8);
+            position: relative;
+        }
+
+        footer a {
+            color: #64ffda;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="{{ url_for('homepage') }}" class="navbar-brand">TrueVision</a>
+        <div class="navbar-nav">
+            <a href="#about" class="nav-link">About</a>
+            <a href="#contact" class="nav-link">Contact</a>
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('detect') }}" class="nav-link">Detect Video</a>
+            <a href="{{ url_for('image_detect') }}" class="nav-link">Detect Image</a>
+            <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="nav-link">Login</a>
+            <a href="{{ url_for('signup') }}" class="nav-link highlight">Sign Up</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>DeepFake Detection</h1>
+        <p>Advanced AI-powered video analysis to detect manipulated content with high accuracy</p>
+        <div class="hero-buttons">
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('detect') }}" class="cta-button">Upload Video</a>
+            <a href="{{ url_for('image_detect') }}" class="cta-button secondary">Detect Image</a>
+            {% else %}
+            <a href="{{ url_for('signup') }}" class="cta-button">Get Started</a>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="container">
+            <h2>Our Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📁</div>
+                    <h3>Video Upload</h3>
+                    <p>Upload your video files directly for analysis. Supports MP4, AVI, and MOV formats up to 100MB.
+                    </p>
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('detect') }}" class="feature-link">Try Upload</a>
+                    {% else %}
+                    <a href="{{ url_for('signup') }}" class="feature-link">Sign Up</a>
+                    {% endif %}
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🖼️</div>
+                    <h3>Image Analysis</h3>
+                    <p>Analyze static images to detect potential AI-generated or manipulated content using advanced
+                        deep learning algorithms.</p>
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('image_detect') }}" class="feature-link">Try Image</a>
+                    {% else %}
+                    <a href="{{ url_for('signup') }}" class="feature-link">Sign Up</a>
+                    {% endif %}
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI-Powered</h3>
+                    <p>Advanced deep learning models trained on extensive datasets for accurate DeepFake detection.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Fast Results</h3>
+                    <p>Get results in seconds with our optimized processing pipeline and real-time analysis.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="about">
+        <h2>About Our Technology</h2>
+        <p>Our DeepFake Detection system utilizes state-of-the-art deep learning algorithms to analyze videos and
+            identify potential manipulations. We combine advanced facial recognition with temporal analysis to detect
+            inconsistencies that are typical in deepfake videos.</p>
+        <p>Built with privacy and security in mind, our system processes videos locally and provides detailed analysis
+            with confidence scores and visual explanations. We're committed to helping combat the spread of manipulated
+            media by making detection technology accessible to everyone.</p>
+    </section>
+
+    <section id="contact" class="contact">
+        <h2>Contact Us</h2>
+        <p>Have questions or feedback? We'd love to hear from you. Get in touch with our team using the form below.</p>
+        <div class="contact-form">
+            <form>
+                <input type="text" placeholder="Your Name" required>
+                <input type="email" placeholder="Your Email" required>
+                <textarea rows="4" placeholder="Your Message" required></textarea>
+                <button type="submit">Send Message</button>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 TrueVision. All rights reserved.</p>
+        <p>
+            <a href="{{ url_for('privacy') }}">Privacy Policy</a> |
+            <a href="{{ url_for('terms') }}">Terms of Service</a>
+        </p>
+    </footer>
+</body>
+
+</html>
