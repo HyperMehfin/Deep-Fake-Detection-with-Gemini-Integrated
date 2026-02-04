@@ -1,0 +1,36 @@
+# --- Core Flask Framework ---
+Flask==2.3.3
+flask-login
+flask-sqlalchemy
+Werkzeug==2.3.8
+# (Note: Login/SQLAlchemy left unpinned for Py3.11 compatibility)
+
+# --- The "Shadow System" (Gemini Integration) ---
+google-generativeai>=0.8.3
+google-ai-generativelanguage
+google-auth
+
+# --- AI & Deep Learning Brain ---
+# Unpinned to let pip find the best Py3.11 binaries automatically
+torch
+torchvision
+numpy
+scikit-learn
+scikit-image
+scipy
+
+# --- Computer Vision & Image Processing ---
+opencv-python-headless
+# MediaPipe 0.10.9 is the last version with stable Windows Py3.11 support for your code
+mediapipe==0.10.9
+Pillow
+
+# --- Visualization & Plots ---
+matplotlib
+seaborn
+
+# --- Utilities & Downloads ---
+huggingface-hub
+requests
+gunicorn
+
