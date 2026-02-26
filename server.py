@@ -3,7 +3,8 @@ from flask import jsonify, json
 from werkzeug.utils import secure_filename
 import datetime
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from models import db, User
+# --- UPDATED: Imported DetectionLog ---
+from models import db, User, DetectionLog
 import os
 import time
 import uuid
@@ -116,7 +117,7 @@ os.chmod(FRAMES_FOLDER, 0o755)
 video_path = ""
 detectOutput = []
 
-app = Flask("__main__", template_folder="templates", static_folder="static")
+app = Flask(__name__, template_folder="templates", static_folder="static")
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500MB max file size
 app.config['SECRET_KEY'] = 'your-secret-key-here'  # Change this to a secure secret key
@@ -625,6 +626,23 @@ def detect():
             frame_urls = prediction[3] if len(prediction) > 3 else []
             
             logger.info(f"Video prediction: {output} with confidence {confidence}%")
+
+            # --- NEW: SAVE LOG TO DATABASE ---
+            if current_user.is_authenticated:
+                try:
+                    new_log = DetectionLog(
+                        user_id=current_user.id,
+                        filename=video_filename,
+                        media_type='Video',
+                        prediction=output,
+                        confidence=confidence
+                    )
+                    db.session.add(new_log)
+                    db.session.commit()
+                except Exception as log_error:
+                    logger.error(f"Error saving video detection log: {str(log_error)}")
+                    db.session.rollback()
+            # ---------------------------------
             
             data = {
                 'output': output, 
@@ -674,6 +692,15 @@ def privacy():
 @app.route('/terms')
 def terms():
     return render_template('terms.html')
+
+# --- NEW ROUTE: HISTORY LOG ---
+@app.route('/history')
+@login_required
+def history():
+    # Fetch logs for the current user, ordered newest first
+    user_logs = DetectionLog.query.filter_by(user_id=current_user.id).order_by(DetectionLog.timestamp.desc()).all()
+    return render_template('history.html', logs=user_logs)
+# ------------------------------
 
 # ✅ Define DFModel before loading state dict
 class DFModel(torch.nn.Module):
@@ -781,6 +808,24 @@ def image_detect():
             return render_template('image.html', error="Error processing image")
         
         output = "FAKE" if prediction == 0 else "REAL"
+
+        # --- NEW: SAVE LOG TO DATABASE ---
+        if current_user.is_authenticated:
+            try:
+                new_log = DetectionLog(
+                    user_id=current_user.id,
+                    filename=filename,
+                    media_type='Image',
+                    prediction=output,
+                    confidence=confidence
+                )
+                db.session.add(new_log)
+                db.session.commit()
+            except Exception as log_error:
+                logger.error(f"Error saving image detection log: {str(log_error)}")
+                db.session.rollback()
+        # ---------------------------------
+
         os.remove(image_path)
         return render_template('image.html', output=output, confidence=confidence)
     
