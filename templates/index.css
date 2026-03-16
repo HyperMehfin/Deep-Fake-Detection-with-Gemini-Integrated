@@ -245,3 +245,41 @@ code {
     height: 150px;
   }
 }
+/* MOBILE FIXES (Ignored by Desktop PCs) */
+@media (max-width: 768px) {
+    /* 1. Fix the Header Text */
+    .hero h1 { 
+        font-size: clamp(2rem, 8vw, 3.5rem); 
+    }
+
+    /* 2. Fix the Navbar Overlap */
+    .navbar-nav {
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 5px;
+        -webkit-overflow-scrolling: touch;
+        justify-content: flex-start;
+    }
+
+    /* 3. Fix the Image/Video Upload Box */
+    .form-container, .file-input-wrapper {
+        width: 100%;
+        max-width: 400px;
+        box-sizing: border-box;
+    }
+
+    /* 4. Fix the Pie Chart */
+    .pie-chart-container {
+        width: 100%;
+        max-width: 350px;
+        aspect-ratio: 1 / 1;
+        height: auto;
+    }
+
+    /* 5. Add the "Native App" Feel */
+    body {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        user-select: none; 
+    }
+}

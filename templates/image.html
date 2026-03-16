@@ -39,6 +39,24 @@
             color: #00c2cc;
         }
 
+        /* Hamburger Button (Hidden on PC) */
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            color: #00f2ff;
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .navbar-nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
         .nav-link {
             color: white;
             text-decoration: none;
@@ -129,13 +147,68 @@
             color: white;
             font-size: 14px;
         }
+
+        /* --- MOBILE FIXES FOR IMAGE DETECT --- */
+        @media (max-width: 768px) {
+            body {
+                -webkit-tap-highlight-color: transparent;
+                -webkit-touch-callout: none;
+                user-select: none;
+            }
+            .navbar {
+                padding: 1rem 1.5rem;
+            }
+            .hamburger {
+                display: block;
+            }
+            .navbar-nav {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: rgba(18, 18, 44, 0.98);
+                padding: 0;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+                max-height: 0;
+                overflow: hidden;
+                opacity: 0;
+                transition: all 0.3s ease;
+            }
+            .navbar-nav.active {
+                max-height: 500px;
+                padding: 1rem 0;
+                opacity: 1;
+            }
+            .nav-link {
+                width: 100%;
+                text-align: center;
+                padding: 1.2rem;
+                border-radius: 0;
+            }
+            .form-container {
+                width: 90% !important;
+                max-width: 400px;
+                padding: 20px;
+                box-sizing: border-box;
+            }
+            .container h1 {
+                font-size: clamp(2rem, 8vw, 2.8rem);
+            }
+        }
     </style>
 </head>
 <body>
 
     <div class="navbar">
         <a href="{{ url_for('homepage') }}" class="navbar-brand">DeepFake Detection</a>
-        <div>
+        
+        <button class="hamburger" id="hamburger-btn" aria-label="Toggle menu">
+            ☰
+        </button>
+
+        <div class="navbar-nav" id="nav-links">
             <a href="{{ url_for('detect') }}" class="nav-link highlight">Video Detect</a>
             <a href="{{ url_for('history') }}" class="nav-link highlight">History</a>
             <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
@@ -152,7 +225,7 @@
         <div class="form-container">
             <form action="/image-detect" method="post" enctype="multipart/form-data">
                 <input type="file" id="fileUpload" style="margin: 20px;" name="image" accept="image/*" required onchange="previewImage(event)"><br>
-                <img id="preview" class="image-preview" style="width: 100px; margin: auto;">
+                <img id="preview" class="image-preview" style="width: 100px; margin: auto; display: none;">
                 <br>
                 <button class="btn" type="submit">Detect</button>
             </form>
@@ -186,9 +259,22 @@
                 reader.readAsDataURL(file);
             }
         }
+        
+        // Hamburger Menu Script
+        document.addEventListener('DOMContentLoaded', () => {
+            const hamburgerBtn = document.getElementById('hamburger-btn');
+            const navLinks = document.getElementById('nav-links');
+
+            hamburgerBtn.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+            });
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    navLinks.classList.remove('active');
+                });
+            });
+        });
     </script>
-
-
-
 </body>
 </html>

@@ -17,10 +17,11 @@
             --border-color: rgba(100, 255, 218, 0.1);
         }
 
-        /* Navbar Styling to match detect.html */
+        /* Navbar Styling */
         .navbar {
             background: var(--bg-dark);
-            padding: 1rem;
+            padding: 1rem 2rem;
+            height: 70px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -42,10 +43,22 @@
             color: var(--primary-dark);
         }
 
+        /* Hamburger Button */
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            color: #64ffda;
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 0;
+        }
+
         .navbar-nav {
             display: flex;
             gap: 1rem;
             align-items: center;
+            transition: all 0.3s ease;
         }
 
         .nav-link {
@@ -153,7 +166,6 @@
             margin-bottom: 1.5rem;
         }
 
-        /* Footer matches detect.html */
         .footer {
             margin-top: auto;
             padding: 3rem 0;
@@ -169,8 +181,89 @@
             gap: 2rem;
         }
         .footer-section h3 { color: var(--primary-color); margin-bottom: 1rem; }
-        .footer-link { color: var(--text-light); text-decoration: none; display: block; margin: 0.5rem 0; }
+        .footer-link { color: var(--text-light); text-decoration: none; display: block; margin: 0.5rem 0; transition: color 0.3s ease; }
         .footer-link:hover { color: var(--primary-color); }
+        
+        /* --- BULLETPROOF MOBILE TABLE FIXES --- */
+        @media (max-width: 768px) {
+            body, html {
+                overflow-x: hidden; /* STOPS the entire screen from swiping sideways */
+                width: 100%;
+                -webkit-tap-highlight-color: transparent;
+                -webkit-touch-callout: none;
+                user-select: none;
+            }
+            .content {
+                padding: 1rem 0; /* Remove side padding so table touches edges */
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .navbar {
+                padding: 1rem 1.5rem;
+            }
+            .hamburger {
+                display: block;
+            }
+            .navbar-nav {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: rgba(17, 29, 64, 0.98);
+                padding: 0;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+                max-height: 0;
+                overflow: hidden;
+                opacity: 0;
+                transition: all 0.3s ease;
+            }
+            .navbar-nav.active {
+                max-height: 500px;
+                padding: 1rem 0;
+                opacity: 1;
+            }
+            .nav-link {
+                width: 100%;
+                text-align: center;
+                padding: 1.2rem;
+                border-radius: 0;
+            }
+            
+            /* --- THE SCROLL FIX --- */
+            .history-container {
+                width: 100%;
+                margin: 1rem 0;
+                padding: 0; 
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+                overflow-x: auto; /* Allow ONLY the table to scroll */
+                -webkit-overflow-scrolling: touch;
+            }
+            .history-table {
+                width: max-content; /* Forces table to ignore screen width limits */
+                min-width: 100%;
+                margin: 0;
+            }
+            .history-table th, .history-table td {
+                white-space: nowrap !important;
+                padding: 1rem;
+            }
+            
+            /* --- THE FILENAME TRUNCATION FIX --- */
+            .history-table td:nth-child(2) {
+                max-width: 150px; /* Limits filename width */
+                overflow: hidden;
+                text-overflow: ellipsis; /* Adds '...' to the end of long names */
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 
@@ -178,7 +271,12 @@
     <div id="root">
         <nav class="navbar">
             <a href="{{ url_for('homepage') }}" class="navbar-brand">DeepFake Detection</a>
-            <div class="navbar-nav">
+            
+            <button class="hamburger" id="hamburger-btn" aria-label="Toggle menu">
+                ☰
+            </button>
+            
+            <div class="navbar-nav" id="nav-links">
                 {% if current_user.is_authenticated %}
                 <a href="{{ url_for('detect') }}" class="nav-link">Upload Video</a>
                 <a href="{{ url_for('image_detect') }}" class="nav-link">Detect Image</a>
@@ -189,8 +287,8 @@
         </nav>
 
         <main class="content" role="main">
-            <h1 class="heading">Detection History</h1>
-            <p class="para">Review your past video and image analysis logs.</p>
+            <h1 class="heading" style="padding: 0 1rem;">Detection History</h1>
+            <p class="para" style="padding: 0 1rem;">Review your past video and image analysis logs.</p>
 
             <div class="history-container">
                 {% if logs %}
@@ -208,7 +306,7 @@
                             {% for log in logs %}
                             <tr>
                                 <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
-                                <td style="color: #fff;">{{ log.filename }}</td>
+                                <td style="color: #fff;" title="{{ log.filename }}">{{ log.filename }}</td>
                                 <td>
                                     <span class="badge {% if log.media_type == 'Video' %}badge-video{% else %}badge-image{% endif %}">
                                         {{ log.media_type }}
@@ -251,5 +349,23 @@
             </div>
         </footer>
     </div>
+    
+    <script>
+        // Hamburger Menu Script
+        document.addEventListener('DOMContentLoaded', () => {
+            const hamburgerBtn = document.getElementById('hamburger-btn');
+            const navLinks = document.getElementById('nav-links');
+
+            hamburgerBtn.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+            });
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    navLinks.classList.remove('active');
+                });
+            });
+        });
+    </script>
 </body>
 </html>
