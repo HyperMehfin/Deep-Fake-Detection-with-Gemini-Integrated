@@ -120,7 +120,9 @@ detectOutput = []
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500MB max file size
-app.config['SECRET_KEY'] = 'your-secret-key-here'  # Change this to a secure secret key
+app.config['SECRET_KEY'] = 'truevision_super_secret_key_123'  # Change this to a secure secret key
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -833,4 +835,4 @@ def image_detect():
 
 if __name__ == '__main__':
     print("--- Starting Server on Port 5000 ---")
-    app.run(host='127.0.0.1', port=5000, debug=True, use_reloader=False)
+    app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)
