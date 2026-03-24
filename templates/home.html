@@ -348,6 +348,7 @@
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 1px;
+            width: 100%;
         }
 
         .contact-form button:hover {
@@ -513,17 +514,19 @@
         <h2>Contact Us</h2>
         <p>Have questions or feedback? We'd love to hear from you. Get in touch with our team using the form below.</p>
         <div class="contact-form">
-            <form>
-                <input type="text" placeholder="Your Name" required>
-                <input type="email" placeholder="Your Email" required>
-                <textarea rows="4" placeholder="Your Message" required></textarea>
+            <form id="contactForm" onsubmit="submitContactForm(event)">
+                <input type="text" name="name" placeholder="Your Name" required>
+                <input type="email" name="email" placeholder="Your Email" required>
+                <textarea name="message" rows="4" placeholder="Your Message" required></textarea>
                 <button type="submit">Send Message</button>
+                
+                <div id="contactStatus" style="display: none; margin-top: 15px; padding: 10px; border-radius: 5px; text-align: center; font-weight: bold;"></div>
             </form>
         </div>
     </section>
 
     <footer>
-        <p>&copy; 2025 TrueVision. All rights reserved.</p>
+        <p>&copy; 2026 TrueVision. All rights reserved.</p>
         <p>
             <a href="{{ url_for('privacy') }}">Privacy Policy</a> |
             <a href="{{ url_for('terms') }}">Terms of Service</a>
@@ -547,6 +550,55 @@
                 });
             });
         });
+
+        // --- NEW AJAX FUNCTION FOR CONTACT FORM ---
+        async function submitContactForm(event) {
+            event.preventDefault(); // Stop the page from refreshing
+            
+            const form = document.getElementById('contactForm');
+            const statusBox = document.getElementById('contactStatus');
+            const formData = new FormData(form);
+            
+            // Show a loading state
+            statusBox.style.display = 'block';
+            statusBox.style.backgroundColor = '#334155';
+            statusBox.style.color = 'white';
+            statusBox.textContent = 'Sending...';
+
+            try {
+                const response = await fetch('/contact', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Green Success Message
+                    statusBox.style.backgroundColor = 'rgba(34, 197, 94, 0.2)';
+                    statusBox.style.color = '#22c55e';
+                    statusBox.style.border = '1px solid #22c55e';
+                    statusBox.textContent = data.message;
+                    form.reset(); // Clear the form
+                } else {
+                    // Red Error Message
+                    statusBox.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
+                    statusBox.style.color = '#ef4444';
+                    statusBox.style.border = '1px solid #ef4444';
+                    statusBox.textContent = data.error;
+                }
+            } catch (error) {
+                statusBox.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
+                statusBox.style.color = '#ef4444';
+                statusBox.style.border = '1px solid #ef4444';
+                statusBox.textContent = 'Network error. Could not send message.';
+            }
+            
+            // Hide the message after 5 seconds
+            setTimeout(() => {
+                statusBox.style.display = 'none';
+            }, 5000);
+        }
     </script>
 </body>
 
